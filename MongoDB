@@ -1,0 +1,160 @@
+一.MongoDB是一种强大、灵活、可扩展的数据存储方式。
+	其有以下特点：
+		1.丰富的数据类型：MongoDB是面向文档的数据库，其将原来的“行”的概念换成了更加灵活的“文档”模型。
+		2.容易扩展：其面向文档的模型使得其可以自动在多台服务器间分隔数据，还可平衡集群的数据和负载。
+		3.丰富的功能:其支持通用辅助索引，可进行多种快速查询;存储JS；支持MapReduce等工具；固定集合大小；
+支持文件存储
+		4.不牺牲速度
+		5.简便的管理
+文档
+	1.文档中的键/值对是有序的，上下文档是完全不同的；
+	2.文档的值不仅可以是字符串，还可以是其他类型；
+	3.键不能含有空字符，”\0“用来表示键的结尾；
+	4."."和"$"有特别的意义，通常被保留；
+	5.以下划线“——”开头的键通常被保留;
+	6.MongoDB不但区分类型，还区分大小写；
+	7.MongoDB的文档不能有重复的键。
+集合:集合是一组文档，是无模式的，其里面的文档可以是各式各样的。
+命名:
+	集合名不能是空字符串""；
+	集合名不能含有\0字符；
+	集合名不能以".system"开头；
+	用户创建的集合名字不能含有保留字符$;
+数据库：
+	数据库命名规则：
+		1.不能是空字符串；
+		2.不得含有''(空格)、.、$、/、\和\0；
+		3.应全部小写；
+		4.最多64个字节
+MongoDB简单使用
+	1.运行
+		[ root@localhost ~] # /etc/init.d/mongod  start
+		Starting mongod:                                           [   OK  ] 
+		[ root@localhost ~] # /usr/bin/mongo
+		MongoDB shell version: 2.6.12
+	2.由于其是功能完备的Js解释器，因此可以运行任何Js程序，调用其库或者函数
+		> Math.sin( Math.PI/2) 
+		1
+		> new Date( " 2016/2/2" ) ;
+		ISODate( " 2016-02-02T08:00:00Z" ) 
+		"")"")
+	3.shell中的基本操作
+		1）help查看命令提示
+			db.help( )                     help on db methods
+			db.mycoll.help( )              help on collection methods
+			sh.help( )                     sharding helpers
+			rs.help( )                     replica set helpers
+			help admin                   administrative help
+			help connect                 connecting to a db help
+			help keys                    key shortcuts
+			help misc                    misc things to know
+			help mr                      mapreduce
+
+			show dbs                     show database names
+			show collections             show collections in current database
+			show users                   show users in current database
+			show profile                 show most recent system.profile entries with time >= 1ms
+			show logs                    show the accessible logger names
+			show log [ name]               prints out the last segment of log in memory, ' global'  is default
+			use <db_name>                set current database
+			db.foo.find( )                 list objects in collection foo
+			db.foo.find(  { a : 1 }  )      list objects in foo where a == 1
+			it                           result of the last line evaluated; use to further iterate
+			DBQuery.shellBatchSize = x   set default number of items to display on shell
+			exit                         quit the mongo shell
+		2）常用命令
+			> show dbs;
+			admin  0.078GB
+			local  0.078GB
+			myDB   ( empty) 
+			test   ( empty) 
+			> use myDB
+			switched to db myDB
+			> db.cloneDatabase( " 127.0.0.1" ) 
+			{ " clonedColls"  : [  ] , " ok"  : 1 } 
+			> db.copyDatabase( " myDB" ," temp" ," 127.0.0.1" ) ;
+			{ " ok"  : 1 }
+			> db.repairDatabase( ) 
+			{" ok"  : 1 }
+			> db.getName( ) ;
+			myDB
+			> db
+			myDB
+			> db.stats( ) ;
+			{
+				" db"  : " myDB" ,
+				" collections"  : 0,
+				" objects"  : 0,
+				" avgObjSize"  : 0,
+				" dataSize"  : 0,
+				" storageSize"  : 0,
+				" numExtents"  : 0,
+				" indexes"  : 0,
+				" indexSize"  : 0,
+				" fileSize"  : 0,
+				" dataFileVersion"  : {
+					} ,
+					" ok"  : 1
+			} 
+			> db.version( ) ;
+			2.6.12
+			> db.getMongo( ) ;
+			connection to 127.0.0.1
+			> db.getPrevError( ) ;
+			{" err"  : null, " n"  : 0, " nPrev"  : -1, " ok"  : 1 } 
+			> db.resetError( ) ;
+			{" ok"  : 1 } 
+		3）用户相关
+			添加用户：db.addUser( " userName" , " pwd123" , true) ; 添加用户、设置密码、是否只读"""")
+			显示当前所有用户：show users;
+			删除用户：db.removeUser("username");或者db.dropUser("username");  
+			数据库认证、安全模式：db,auth("username","123123");
+
+		4）聚集集合基本信息：
+			> db.yourColl.help( ) ;
+			DBCollection help
+				db.yourColl.find( ) .help( )  - show DBCursor help
+				db.yourColl.count( ) 
+				db.yourColl.copyTo( newColl)  - duplicates collection by copying all documents to newColl; no indexes are copied.
+				db.yourColl.convertToCapped( maxBytes)  - calls {
+				convertToCapped:' yourColl' , size:maxBytes} }  command
+			> db.yourColl.count( ) ;
+			0
+			> db.userInfo.dataSize( ) ;
+			> db.userInfo.getDB( ) ;
+			myDB
+			> db.userInfo.stats( ) ;
+			> db.userInfo.totalSize( ) ;
+			> db.userInfo.storageSize( ) ;
+			> db.userInfo.getShardVersion( ) ;
+			> db.userInfo.renameCollection( " users" ) ;
+			> db.userInfo.drop( ) ;
+			> db.runCommand({"distinct":"peopel","key":"age"})
+		5) 查询
+			查询foo中的所有内容
+			>db.foo.find（）
+			查找指定的的键值对
+			>db.fool.find({"name":"root","age":13})
+			指定返回的键，例如：返回name和email，但是剔除_id
+			>db.foo.find({},{"name":1,"email":1,"_id":0})
+			查询条件："$lt"、"$lte"、"$gt"、"$gte"、"ne"分别对应<、<=、>、>=、!=
+				如：查询19-39(含39)的用户：
+					>db.user.find({"age":{" gte":18,"lte":39}});
+			两种OR查询：
+				"$in":用来一次查询一个键的多个值.其与"$in"相对，返回与数组中所有条件都不匹配的文档
+				"$or":用来完成多个键值的任意给定值
+				>db.user,find({"user_age":{"$in":[13,23,55]});
+				>db.user,find({"user_age":{"$or":[13,23,55]});
+			元条件句："$not"
+				>db.user.find({"id_num":{"not":{"$mode":[1,5]}}});
+			键值为null的文档不但匹配该键是否为null，还会匹配不存在，因而会返回缺少这个键的所有文档，
+		因此匹配键值为null的文档，既要检查该键值是否为null还要通过"$exists"条件判断键值是否存在。
+			MongoDB使用Perl兼容的正则表达式来匹配正则表达式，因此匹配的正则表达式必须被Perl支持。
+			如：匹配mongoD和mongod
+				>db.fool.find("name":/mongodb/i);
+			查询数组：
+				>db.food.find({"fruit":["apple","banana"]});
+				
+			
+
+
